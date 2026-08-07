@@ -34,6 +34,12 @@ export function SiteHeader() {
 
         <nav className="ml-auto flex items-center gap-1 text-sm">
           <Link
+            to="/projects"
+            className="hidden rounded-full px-3 py-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:block"
+          >
+            Projects
+          </Link>
+          <Link
             to="/build"
             className="hidden rounded-full px-3 py-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:block"
           >
@@ -76,8 +82,8 @@ export function SiteFooter() {
       <div className="flex flex-col gap-2 px-6">
         <p className="font-display text-sm font-semibold">BuildYard</p>
         <p className="max-w-xl text-sm text-muted-foreground">
-          Trade supply marketplace for contractors. Prices are indicative and exclude
-          GST until checkout.
+          Trade supply marketplace for contractors. Prices are indicative and exclude GST until
+          checkout.
         </p>
       </div>
     </footer>

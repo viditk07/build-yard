@@ -20,8 +20,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "BuildYard — Construction Materials Marketplace" },
       {
         property: "og:description",
-        content:
-          "Trade pricing on cement, steel, timber and aggregates from verified suppliers.",
+        content: "Trade pricing on cement, steel, timber and aggregates from verified suppliers.",
       },
     ],
   }),
@@ -47,12 +46,12 @@ function Home() {
             Every material your site needs, from one yard.
           </h1>
           <p className="mt-5 max-w-xl text-base text-concrete-foreground/75">
-            Cement, TMT steel, shuttering ply, blocks and aggregates — priced by the
-            load, shipped by verified suppliers.
+            Cement, TMT steel, shuttering ply, blocks and aggregates — priced by the load, shipped
+            by verified suppliers.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link to="/build">Shop by build stage</Link>
+              <Link to="/projects/new">Start a house project</Link>
             </Button>
             <Button
               asChild
@@ -60,7 +59,7 @@ function Home() {
               variant="outline"
               className="border-concrete-foreground/40 bg-concrete-foreground/10 text-concrete-foreground hover:bg-concrete-foreground/20 hover:text-concrete-foreground"
             >
-              <Link to="/products">Browse the catalog</Link>
+              <Link to="/build">Shop by build stage</Link>
             </Button>
           </div>
 
@@ -82,13 +81,10 @@ function Home() {
       <section className="mx-auto max-w-6xl px-4 py-14">
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="font-display text-2xl font-semibold">
-              Build a house, stage by stage
-            </h2>
+            <h2 className="font-display text-2xl font-semibold">Build a house, stage by stage</h2>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              Pick the stage you are at — foundation, civil work, plumbing, electrical,
-              flooring, paint or interiors — and get every material it needs with
-              supplier details.
+              Pick the stage you are at — foundation, civil work, plumbing, electrical, flooring,
+              paint or interiors — and get every material it needs with supplier details.
             </p>
           </div>
           <Link to="/build" className="shrink-0 text-sm text-primary hover:underline">
@@ -104,12 +100,10 @@ function Home() {
                 className="surface-card flex h-full flex-col gap-2 rounded-xl p-4 transition-colors hover:border-primary"
               >
                 <span className="text-spec text-primary">Stage {phase.step}</span>
-                <span className="font-display leading-tight font-semibold">
-                  {phase.name}
-                </span>
+                <span className="font-display leading-tight font-semibold">{phase.name}</span>
                 <span className="text-xs text-muted-foreground">
-                  {phase.subcategories.length} sub-categories ·{" "}
-                  {phaseProducts(phase).length} materials
+                  {phase.subcategories.length} sub-categories · {phaseProducts(phase).length}{" "}
+                  materials
                 </span>
               </Link>
             </li>
@@ -138,14 +132,11 @@ function Home() {
               />
               <div className="flex items-center gap-2 p-3">
                 <CategoryIcon category={c} className="size-4 shrink-0 text-primary" />
-                <span className="font-display text-sm leading-tight font-semibold">
-                  {c}
-                </span>
+                <span className="font-display text-sm leading-tight font-semibold">{c}</span>
               </div>
             </Link>
           ))}
         </div>
-
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-6">
@@ -179,7 +170,9 @@ function Home() {
             >
               <p className="font-display font-semibold">{s.name}</p>
               <p className="mt-1 text-sm text-muted-foreground">{s.city}</p>
-              <p className="mt-3 text-spec text-primary">★ {s.rating} · since {s.since}</p>
+              <p className="mt-3 text-spec text-primary">
+                ★ {s.rating} · since {s.since}
+              </p>
             </Link>
           ))}
         </div>

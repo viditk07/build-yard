@@ -15,22 +15,19 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { PHASES } from "@/lib/phases";
 import { CATEGORIES, SUPPLIERS } from "@/lib/catalog";
 import { CategoryIcon } from "@/components/material-tile";
-import { ChevronRight, Home, LayoutGrid, Store, ShoppingCart, Box } from "lucide-react";
+import { Box, Building2, ChevronRight, Home, LayoutGrid, ShoppingCart, Store } from "lucide-react";
 
 export function AppSidebar() {
   const { pathname, hash } = useRouterState({
     select: (s) => ({ pathname: s.location.pathname, hash: s.location.hash }),
   });
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) =>
+    pathname === path || (path !== "/" && pathname.startsWith(`${path}/`));
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -51,6 +48,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {[
                 { title: "Home", url: "/", icon: Home },
+                { title: "Projects", url: "/projects", icon: Building2 },
                 { title: "Catalog", url: "/products", icon: LayoutGrid },
                 { title: "3D Visualiser", url: "/visualiser", icon: Box },
 
@@ -58,11 +56,7 @@ export function AppSidebar() {
                 { title: "Cart", url: "/cart", icon: ShoppingCart },
               ].map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.title}
-                    isActive={isActive(item.url)}
-                  >
+                  <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
                     <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -90,11 +84,7 @@ export function AppSidebar() {
                   >
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
-                          tooltip={phase.name}
-                          isActive={open}
-                          className="pr-7"
-                        >
+                        <SidebarMenuButton tooltip={phase.name} isActive={open} className="pr-7">
                           <span className="grid size-5 shrink-0 place-items-center rounded-md bg-sidebar-accent text-[10px] font-semibold text-sidebar-accent-foreground">
                             {phase.step}
                           </span>
@@ -106,20 +96,14 @@ export function AppSidebar() {
                         <SidebarMenuSub>
                           <SidebarMenuSubItem>
                             <SidebarMenuSubButton asChild isActive={open && !hash}>
-                              <Link
-                                to="/build/$phaseId"
-                                params={{ phaseId: phase.id }}
-                              >
+                              <Link to="/build/$phaseId" params={{ phaseId: phase.id }}>
                                 All materials
                               </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                           {phase.subcategories.map((sub) => (
                             <SidebarMenuSubItem key={sub.id}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={open && hash === sub.id}
-                              >
+                              <SidebarMenuSubButton asChild isActive={open && hash === sub.id}>
                                 <Link
                                   to="/build/$phaseId"
                                   params={{ phaseId: phase.id }}

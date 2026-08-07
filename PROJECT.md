@@ -2,61 +2,89 @@
 
 ## Project summary
 
-BuildYard is a responsive construction-materials marketplace prototype for Indian
-contractors and home builders. It lets a buyer discover materials through a normal
-catalog or through the sequence of a residential build, compare supplier information,
-assemble an order, and turn a raster floor plan into a simple browser-rendered 3D wall
-model.
+BuildYard is an IFC-first design-to-procurement MVP for Indian contractors, builders,
+site engineers, and home owners. A user creates a house project, organizes its drawings
+by discipline, loads an IFC building model, selects a semantic model element, reviews a
+formula-backed material takeoff and supplier match, and moves those materials into a
+cart. A dependency-based construction SOP connects procurement decisions to the order in
+which a house is built.
 
-The current repository is a polished, server-rendered product demo. The catalog,
-supplier data, and build-stage mappings are static TypeScript data; the cart is stored
-in the browser; and checkout does not create a real order or take payment. This boundary
-is important: the UI demonstrates the intended buying journey, but the application does
-not yet have a database, authentication, supplier integrations, or a transactional
-backend.
+The full vertical journey now runs in the browser. Project records and document metadata
+use `localStorage`, uploaded files use IndexedDB, and IFC geometry is parsed locally with
+`web-ifc`. Catalog, supplier, pricing, and build-stage data remain static TypeScript data;
+checkout does not create a durable order or take payment. This is an evaluable workflow
+MVP, not yet a production procurement system.
 
 ## Product intent
 
 ### Problem
 
-Construction procurement is commonly split across merchants, mills, and specialist
-suppliers. Buyers need to know both *what* is required at a given stage and *who* can
-supply it, while accounting for trade quantities, delivery, and tax.
+House information is fragmented across discipline drawings, BIM models, BOQs, schedules,
+merchants, mills, and specialist suppliers. Buyers need a traceable connection between a
+model element, its calculated material requirement, an available product, and the work
+package that consumes it. Without that connection, quantity changes and procurement
+decisions are difficult to review and coordinate.
 
 ### Value proposition
 
-- One catalog for structural, services, finishing, and interior materials.
-- Stage-by-stage discovery for buyers who think in terms of the build sequence rather
-  than product taxonomy.
-- Visible trade units, minimum order quantities, stock, specifications, and supplier
-  details.
-- An order summary that makes delivery and GST explicit.
-- A local 2D-to-3D visualisation aid that does not upload floor plans to a server.
+- One controlled workspace for architectural, structural, MEP, specification, and IFC
+  files.
+- Semantic 3D selection that preserves the link from an IFC element to its takeoff.
+- Formula-backed material recipes with visible quantity source, waste, assumptions,
+  confidence, MOQ, stock, supplier, and price.
+- Stage and dependency guidance for users who need to understand how a house is built.
+- An existing marketplace, cart, and checkout surface that procurement results can enter
+  immediately.
+- Browser-local processing for early evaluation without requiring project-file upload to
+  a backend.
 
 ### Primary users
 
 - Contractors and site engineers planning or replenishing a residential build.
 - Small builders comparing materials and suppliers.
 - Home owners who need a guided list of materials for each construction stage.
+- Designers and quantity reviewers validating the relationship between a model element
+  and a material recommendation.
 
 ## Current implementation
 
-| Capability | Status | Notes |
-| --- | --- | --- |
-| Marketing home page | Implemented | Hero, build stages, categories, featured products, and suppliers. |
-| Product catalog | Implemented | Text search, category and supplier filters, and price sorting use URL search parameters. |
-| Product details | Implemented | Specifications, supplier link, stock, MOQ-aware quantity selection, and related products. |
-| Supplier directory | Implemented | Eleven static supplier profiles and their products. “Verified” is presentation data, not a live verification workflow. |
-| Build-stage shopping | Implemented | Seven stages and 38 subcategories map the catalog to a residential construction sequence. |
-| Cart | Implemented locally | Persists to `localStorage` under `buildyard.cart.v1`; there is no account or server-side cart. |
-| Pricing summary | Implemented locally | INR prices, ₹2,500 delivery up to ₹100,000 subtotal, free delivery above ₹100,000, and 18% GST on subtotal plus delivery. |
-| Checkout form | Demo only | Zod validates contact and site fields. Submission generates a random `BY-xxxxxx` reference, clears the cart, and sends nothing. |
-| Floor-plan visualiser | Implemented locally | PNG/JPG upload, automatic raster wall detection, manual tracing, scale controls, and an orbitable Three.js model. |
-| SEO/error states | Implemented | Per-route metadata, route-specific not-found states, React error handling, and a fallback HTML 500 page. |
-| Accounts, orders, and payments | Not implemented | No authentication, database, API, payment provider, or order history. |
-| Live stock and logistics | Not implemented | Stock, fulfilment, ratings, and dispatch language are static demo values. |
+| Capability                     | Status              | Notes                                                                                                                                                                                                                     |
+| ------------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project workspace              | Implemented locally | Project briefs and document metadata persist in `localStorage`; uploaded drawing blobs persist in IndexedDB.                                                                                                              |
+| Controlled drawing register    | Implemented locally | Eleven discipline sections support multiple files, revisions, review status, approval, and not-applicable reasons.                                                                                                        |
+| IFC model review               | MVP implemented     | `web-ifc` streams semantic geometry into Three.js with element selection, model summaries, and approval gates.                                                                                                            |
+| Element material takeoff       | MVP implemented     | Common architectural, structural, plumbing, and electrical IFC types map to explicit recipes, MOQ-rounded catalog products, suppliers, confidence, and assumptions. Geometry-bound quantities are conservative estimates. |
+| Construction SOP               | MVP implemented     | Dependency-based work packages expose drawing, model, takeoff, supplier, quality, and approval gates.                                                                                                                     |
+| Marketing home page            | Implemented         | Hero, build stages, categories, featured products, and suppliers.                                                                                                                                                         |
+| Product catalog                | Implemented         | Text search, category and supplier filters, and price sorting use URL search parameters.                                                                                                                                  |
+| Product details                | Implemented         | Specifications, supplier link, stock, MOQ-aware quantity selection, and related products.                                                                                                                                 |
+| Supplier directory             | Implemented         | Eleven static supplier profiles and their products. “Verified” is presentation data, not a live verification workflow.                                                                                                    |
+| Build-stage shopping           | Implemented         | Seven stages and 38 subcategories map the catalog to a residential construction sequence.                                                                                                                                 |
+| Cart                           | Implemented locally | Persists to `localStorage` under `buildyard.cart.v1`; there is no account or server-side cart.                                                                                                                            |
+| Pricing summary                | Implemented locally | INR prices, ₹2,500 delivery up to ₹100,000 subtotal, free delivery above ₹100,000, and 18% GST on subtotal plus delivery.                                                                                                 |
+| Checkout form                  | Demo only           | Zod validates contact and site fields. Submission generates a random `BY-xxxxxx` reference, clears the cart, and sends nothing.                                                                                           |
+| Floor-plan visualiser          | Implemented locally | PNG/JPG upload, automatic raster wall detection, manual tracing, scale controls, and an orbitable Three.js model.                                                                                                         |
+| SEO/error states               | Implemented         | Per-route metadata, route-specific not-found states, React error handling, and a fallback HTML 500 page.                                                                                                                  |
+| Accounts, orders, and payments | Not implemented     | No authentication, database, API, payment provider, or order history.                                                                                                                                                     |
+| Live stock and logistics       | Not implemented     | Stock, fulfilment, ratings, and dispatch language are static demo values.                                                                                                                                                 |
 
 ## User journeys
+
+### IFC-led design to procurement
+
+1. Create a project with site, building, floor, and area details.
+2. Upload each drawing under its discipline heading and record its revision and status.
+3. Approve the IFC revision that should be used for model review.
+4. Open the 3D model and select a semantic building element.
+5. Inspect its IFC identity and conservative geometry-derived dimensions, area, volume,
+   or count.
+6. Review the mapped material recipe, formula, waste factor, confidence, assumptions,
+   supplier product, MOQ-rounded quantity, stock, and estimated price.
+7. Add selected products to the existing cart and continue to checkout.
+8. Review the construction SOP for work-package prerequisites and readiness.
+
+This workflow is intentionally review-led. Derived quantities are estimates and must not
+supersede approved consultant quantities or a contractual BOQ.
 
 ### Catalog-led purchase
 
@@ -83,18 +111,23 @@ supply it, while accounting for trade quantities, delivery, and tax.
 
 ## Application map
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Marketplace landing page and primary discovery entry point. |
-| `/products` | Searchable and filterable materials catalog. |
-| `/products/:productId` | Product details and add-to-cart controls. |
-| `/suppliers` | Supplier directory. |
-| `/suppliers/:supplierId` | Supplier profile and associated products. |
-| `/build` | Ordered residential build stages. |
-| `/build/:phaseId` | Stage subcategories, suppliers, and products. |
-| `/cart` | Persistent client-side cart and calculated totals. |
-| `/checkout` | Validated demo delivery form and order confirmation. |
-| `/visualiser` | Client-side floor-plan tracing and Three.js preview. |
+| Route                           | Purpose                                                     |
+| ------------------------------- | ----------------------------------------------------------- |
+| `/`                             | Marketplace landing page and primary discovery entry point. |
+| `/projects`                     | Browser-local design-to-procurement project list.           |
+| `/projects/new`                 | Project brief and initial building setup.                   |
+| `/projects/:projectId`          | Drawing, model, takeoff, supplier, and SOP readiness.       |
+| `/projects/:projectId/drawings` | Categorized drawing upload, revision, and approval.         |
+| `/projects/:projectId/model`    | IFC review, semantic selection, takeoff, and SOP gates.     |
+| `/products`                     | Searchable and filterable materials catalog.                |
+| `/products/:productId`          | Product details and add-to-cart controls.                   |
+| `/suppliers`                    | Supplier directory.                                         |
+| `/suppliers/:supplierId`        | Supplier profile and associated products.                   |
+| `/build`                        | Ordered residential build stages.                           |
+| `/build/:phaseId`               | Stage subcategories, suppliers, and products.               |
+| `/cart`                         | Persistent client-side cart and calculated totals.          |
+| `/checkout`                     | Validated demo delivery form and order confirmation.        |
+| `/visualiser`                   | Client-side floor-plan tracing and Three.js preview.        |
 
 Routes are file-based under `src/routes`. `src/routeTree.gen.ts` is generated by the
 TanStack Router plugin and must not be edited manually.
@@ -102,17 +135,26 @@ TanStack Router plugin and must not be edited manually.
 ## Architecture
 
 ```text
-TanStack Start request
-        |
-        v
-SSR shell + file routes ---- static catalog / build-stage data
-        |                              |
-        v                              v
-React UI ---------------------- product and supplier selectors
-   |              |
-   |              +---- cart context ---- browser localStorage
-   |
-   +---- visualiser ---- Canvas pixel analysis ---- Three.js/WebGL
+Project brief + drawing metadata ---- localStorage
+              |
+Uploaded drawings and IFC blobs ----- IndexedDB
+              |
+              v
+       web-ifc geometry stream
+              |
+              v
+Three.js semantic selection ---- geometry-derived quantity
+                                      |
+                                      v
+                             material recipe engine
+                                      |
+                        static catalog + suppliers
+                                      |
+                                      v
+                              cart ---- checkout
+                                      |
+                                      v
+                         construction SOP gates
 ```
 
 ### Runtime composition
@@ -126,12 +168,33 @@ React UI ---------------------- product and supplier selectors
 - `src/router.tsx` creates a router and a React Query client per router instance.
 - `src/routes/__root.tsx` owns document metadata, providers, the application sidebar,
   header, footer, nested route outlet, error boundary, and toast host.
+- `src/lib/project-store.ts` separates serializable project metadata from uploaded blobs.
+  It uses versioned browser storage keys and an IndexedDB-backed file store.
+- `src/lib/ifc-loader.ts` initializes `web-ifc`, loads the bundled WASM module, streams
+  meshes, and exposes semantic properties for the selected express ID.
+- `src/components/ifc-viewer.tsx` owns Three.js scene setup, navigation, framing,
+  ray-cast selection, highlighting, progress, errors, and resource disposal.
+- `src/lib/takeoff-engine.ts` maps supported IFC types and measured geometry to explicit
+  material recipes, then resolves purchasable catalog products and supplier data.
+- `src/lib/sop.ts` defines dependency-based construction work packages and their
+  drawing, model, takeoff, procurement, quality, and approval gates.
 - Route loaders for dynamic product, supplier, and phase pages perform synchronous
   lookups against local arrays and produce route-level 404s for unknown IDs.
 - React Query is wired into the application context but is not currently used for
   remote queries or mutations.
 
 ### Domain data
+
+`src/lib/project-types.ts` defines projects, discipline sections, drawing revisions,
+review states, approvals, and model metadata. Eleven upload categories cover site,
+architectural, structural, plumbing, electrical, HVAC, fire safety, interiors, external
+works, specifications, and IFC building models.
+
+`src/lib/takeoff-types.ts` and `src/lib/takeoff-engine.ts` define the trace from a selected
+IFC element to material lines. Supported recipes cover common walls, slabs, beams,
+columns, footings, roofs, doors, windows, pipes, conduits/cables, fixtures, lights, and
+distribution boards. Unsupported or weakly measured elements are surfaced with reduced
+confidence instead of being presented as exact quantities.
 
 `src/lib/catalog.ts` is the in-memory source of truth:
 
@@ -200,9 +263,9 @@ expose a theme switch.
 ```text
 src/
   assets/             Marketplace and category imagery
-  components/         Application chrome, product UI, and reusable UI primitives
+  components/         Project, IFC, takeoff, SOP, marketplace, and reusable UI
   hooks/              Shared React hooks
-  lib/                Catalog, build phases, cart, plan tracing, and error handling
+  lib/                Project storage, IFC, takeoff, SOP, catalog, cart, and utilities
   routes/             TanStack file routes
   routeTree.gen.ts    Generated route manifest
   router.tsx          Router and query-client construction
@@ -224,9 +287,11 @@ bun install
 bun run dev
 
 # npm alternative
-npm install
+npm install --no-package-lock
 npm run dev
 ```
+
+The development server is available at `http://localhost:8080` by default.
 
 Useful commands:
 
@@ -240,8 +305,10 @@ npm run format     # write Prettier formatting changes
 ```
 
 There is no automated test command or test suite at present. A change should at minimum
-pass `npm run lint` and `npm run build`, followed by manual checks of the affected route
-at mobile and desktop widths.
+pass `npx tsc --noEmit`, targeted ESLint checks for changed files, and `npm run build`,
+followed by manual checks of the affected route at mobile and desktop widths. The full
+lint command also enforces formatting and currently exposes legacy-file issues that
+predate the IFC workflow.
 
 ## Important development constraints
 
@@ -276,6 +343,8 @@ at mobile and desktop widths.
 ### Engineering
 
 - No automated unit, integration, accessibility, or end-to-end tests exist.
+- Project and drawing data is browser-local, so it cannot yet be shared across users,
+  browsers, or devices and has no server backup or audit history.
 - The catalog is a large monolithic source file and has no automated integrity checks.
 - The UI downloads Google Fonts at runtime; deployments with strict privacy or offline
   requirements should self-host them.
@@ -285,31 +354,39 @@ at mobile and desktop widths.
 - The project declares no supported Node.js engine, and dependency reproducibility
   currently depends on using the committed Bun lockfile.
 
-### Visualiser
+### IFC and visualisation
 
+- IFC takeoff currently derives conservative measurements from rendered geometry bounds;
+  it does not yet reconcile IFC base quantities, property sets, assemblies, openings,
+  classifications, or an approved BOQ.
+- The takeoff mapping covers common residential elements but is not a universal IFC or
+  estimating rules engine. Every estimate needs human review before procurement.
+- Large and highly detailed IFC files may consume significant browser memory and block
+  the main thread during parsing.
+- Project model selection and takeoff decisions are not yet saved as an auditable BOQ.
 - Analysis is synchronous after a short timeout and may pause the UI on complex images.
 - Uploaded object URLs and some rebuilt Three.js resources are not explicitly disposed,
   which may increase memory use during repeated uploads or parameter changes.
-- Output cannot currently be saved, shared, exported, measured, or connected to a bill
-  of materials.
+- The separate raster floor-plan visualiser cannot save or export its generated model.
 
 ## Recommended delivery roadmap
 
-1. **Protect the current prototype:** add catalog/phase integrity tests, pricing tests,
-   cart tests, route smoke tests, and a CI workflow for lint and build.
-2. **Introduce a real domain backend:** model users, suppliers, products, prices,
-   inventory, addresses, carts, quotes, orders, and order events in persistent storage.
-3. **Make checkout transactional:** server-side validation and pricing, inventory checks,
-   idempotent order creation, supplier notifications, payment or purchase-order support,
-   and auditable confirmations.
-4. **Add marketplace operations:** supplier onboarding/verification, serviceability,
-   delivery-slot calculation, inventory feeds, admin controls, and content ownership.
-5. **Harden the product:** authentication and authorization, rate limiting, monitoring,
-   privacy and retention controls, accessibility testing, performance budgets, and SEO
-   assets such as canonical URLs and social images.
-6. **Evolve the visualiser:** move detection to a worker, improve line/room/opening
-   recognition, dispose resources correctly, save projects, and derive an editable bill
-   of materials only after geometry quality is measurable.
+1. **Make takeoff auditable:** extract IFC base quantities and property sets, preserve
+   model/revision provenance, reconcile openings and assemblies, add manual overrides,
+   and export a reviewable BOQ/IFC-linked report.
+2. **Persist the project domain:** add authentication, roles, object storage, project and
+   document APIs, revision history, approvals, comments, and organization access.
+3. **Protect the workflow:** add recipe/unit tests, catalog integrity checks, IFC fixtures,
+   pricing and cart tests, route smoke tests, end-to-end coverage, and CI.
+4. **Integrate live supply:** implement regional price books, supplier onboarding,
+   serviceability, inventory feeds, quote comparison, substitutions, delivery planning,
+   and supplier confirmations.
+5. **Make checkout transactional:** validate quantities and prices server-side, reserve
+   inventory, support purchase orders or payments, create idempotent orders, and retain
+   an auditable order timeline.
+6. **Scale model processing:** move heavy parsing to workers or a conversion service,
+   support federated/large models, improve sectioning and measurements, and add model
+   issue tracking and change comparison.
 
 ## Definition of production readiness
 

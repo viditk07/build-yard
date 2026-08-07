@@ -14,13 +14,20 @@ import { Route as BuildRouteImport } from './routes/build'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as BuildIndexRouteImport } from './routes/build.index'
 import { Route as BuildPhaseIdRouteImport } from './routes/build.$phaseId'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
+import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as SuppliersIndexRouteImport } from './routes/suppliers.index'
 import { Route as SuppliersSupplierIdRouteImport } from './routes/suppliers.$supplierId'
 import { Route as VisualiserIndexRouteImport } from './routes/visualiser.index'
+import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects.$projectId.index'
+import { Route as ProjectsProjectIdDrawingsRouteImport } from './routes/projects.$projectId.drawings'
+import { Route as ProjectsProjectIdModelRouteImport } from './routes/projects.$projectId.model'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,6 +54,11 @@ const ProductsRoute = ProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuildIndexRoute = BuildIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -67,6 +79,21 @@ const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
   path: '/$productId',
   getParentRoute: () => ProductsRoute,
 } as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsRoute,
+} as any)
+const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
+  id: '/$projectId',
+  path: '/$projectId',
+  getParentRoute: () => ProjectsRoute,
+} as any)
+const ProjectsNewRoute = ProjectsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => ProjectsRoute,
+} as any)
 const SuppliersIndexRoute = SuppliersIndexRouteImport.update({
   id: '/suppliers/',
   path: '/suppliers/',
@@ -82,6 +109,22 @@ const VisualiserIndexRoute = VisualiserIndexRouteImport.update({
   path: '/visualiser/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsProjectIdIndexRoute = ProjectsProjectIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsProjectIdRoute,
+} as any)
+const ProjectsProjectIdDrawingsRoute =
+  ProjectsProjectIdDrawingsRouteImport.update({
+    id: '/drawings',
+    path: '/drawings',
+    getParentRoute: () => ProjectsProjectIdRoute,
+  } as any)
+const ProjectsProjectIdModelRoute = ProjectsProjectIdModelRouteImport.update({
+  id: '/model',
+  path: '/model',
+  getParentRoute: () => ProjectsProjectIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,13 +132,20 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/products': typeof ProductsRouteWithChildren
+  '/projects': typeof ProjectsRouteWithChildren
   '/build/$phaseId': typeof BuildPhaseIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRouteWithChildren
+  '/projects/new': typeof ProjectsNewRoute
   '/suppliers/$supplierId': typeof SuppliersSupplierIdRoute
   '/build/': typeof BuildIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/visualiser/': typeof VisualiserIndexRoute
+  '/projects/$projectId/drawings': typeof ProjectsProjectIdDrawingsRoute
+  '/projects/$projectId/model': typeof ProjectsProjectIdModelRoute
+  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,11 +153,16 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/build/$phaseId': typeof BuildPhaseIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/projects/new': typeof ProjectsNewRoute
   '/suppliers/$supplierId': typeof SuppliersSupplierIdRoute
   '/build': typeof BuildIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/projects': typeof ProjectsIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
   '/visualiser': typeof VisualiserIndexRoute
+  '/projects/$projectId/drawings': typeof ProjectsProjectIdDrawingsRoute
+  '/projects/$projectId/model': typeof ProjectsProjectIdModelRoute
+  '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,13 +171,20 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/products': typeof ProductsRouteWithChildren
+  '/projects': typeof ProjectsRouteWithChildren
   '/build/$phaseId': typeof BuildPhaseIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRouteWithChildren
+  '/projects/new': typeof ProjectsNewRoute
   '/suppliers/$supplierId': typeof SuppliersSupplierIdRoute
   '/build/': typeof BuildIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/visualiser/': typeof VisualiserIndexRoute
+  '/projects/$projectId/drawings': typeof ProjectsProjectIdDrawingsRoute
+  '/projects/$projectId/model': typeof ProjectsProjectIdModelRoute
+  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -132,13 +194,20 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/products'
+    | '/projects'
     | '/build/$phaseId'
     | '/products/$productId'
+    | '/projects/$projectId'
+    | '/projects/new'
     | '/suppliers/$supplierId'
     | '/build/'
     | '/products/'
+    | '/projects/'
     | '/suppliers/'
     | '/visualiser/'
+    | '/projects/$projectId/drawings'
+    | '/projects/$projectId/model'
+    | '/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -146,11 +215,16 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/build/$phaseId'
     | '/products/$productId'
+    | '/projects/new'
     | '/suppliers/$supplierId'
     | '/build'
     | '/products'
+    | '/projects'
     | '/suppliers'
     | '/visualiser'
+    | '/projects/$projectId/drawings'
+    | '/projects/$projectId/model'
+    | '/projects/$projectId'
   id:
     | '__root__'
     | '/'
@@ -158,13 +232,20 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/products'
+    | '/projects'
     | '/build/$phaseId'
     | '/products/$productId'
+    | '/projects/$projectId'
+    | '/projects/new'
     | '/suppliers/$supplierId'
     | '/build/'
     | '/products/'
+    | '/projects/'
     | '/suppliers/'
     | '/visualiser/'
+    | '/projects/$projectId/drawings'
+    | '/projects/$projectId/model'
+    | '/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -173,6 +254,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ProductsRoute: typeof ProductsRouteWithChildren
+  ProjectsRoute: typeof ProjectsRouteWithChildren
   SuppliersSupplierIdRoute: typeof SuppliersSupplierIdRoute
   SuppliersIndexRoute: typeof SuppliersIndexRoute
   VisualiserIndexRoute: typeof VisualiserIndexRoute
@@ -215,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/build/': {
       id: '/build/'
       path: '/'
@@ -243,6 +332,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsProductIdRouteImport
       parentRoute: typeof ProductsRoute
     }
+    '/projects/': {
+      id: '/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
+    '/projects/$projectId': {
+      id: '/projects/$projectId'
+      path: '/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
+    '/projects/new': {
+      id: '/projects/new'
+      path: '/new'
+      fullPath: '/projects/new'
+      preLoaderRoute: typeof ProjectsNewRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
     '/suppliers/': {
       id: '/suppliers/'
       path: '/suppliers'
@@ -263,6 +373,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/visualiser/'
       preLoaderRoute: typeof VisualiserIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/projects/$projectId/': {
+      id: '/projects/$projectId/'
+      path: '/'
+      fullPath: '/projects/$projectId/'
+      preLoaderRoute: typeof ProjectsProjectIdIndexRouteImport
+      parentRoute: typeof ProjectsProjectIdRoute
+    }
+    '/projects/$projectId/drawings': {
+      id: '/projects/$projectId/drawings'
+      path: '/drawings'
+      fullPath: '/projects/$projectId/drawings'
+      preLoaderRoute: typeof ProjectsProjectIdDrawingsRouteImport
+      parentRoute: typeof ProjectsProjectIdRoute
+    }
+    '/projects/$projectId/model': {
+      id: '/projects/$projectId/model'
+      path: '/model'
+      fullPath: '/projects/$projectId/model'
+      preLoaderRoute: typeof ProjectsProjectIdModelRouteImport
+      parentRoute: typeof ProjectsProjectIdRoute
     }
   }
 }
@@ -293,12 +424,44 @@ const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
   ProductsRouteChildren,
 )
 
+interface ProjectsProjectIdRouteChildren {
+  ProjectsProjectIdDrawingsRoute: typeof ProjectsProjectIdDrawingsRoute
+  ProjectsProjectIdModelRoute: typeof ProjectsProjectIdModelRoute
+  ProjectsProjectIdIndexRoute: typeof ProjectsProjectIdIndexRoute
+}
+
+const ProjectsProjectIdRouteChildren: ProjectsProjectIdRouteChildren = {
+  ProjectsProjectIdDrawingsRoute: ProjectsProjectIdDrawingsRoute,
+  ProjectsProjectIdModelRoute: ProjectsProjectIdModelRoute,
+  ProjectsProjectIdIndexRoute: ProjectsProjectIdIndexRoute,
+}
+
+const ProjectsProjectIdRouteWithChildren =
+  ProjectsProjectIdRoute._addFileChildren(ProjectsProjectIdRouteChildren)
+
+interface ProjectsRouteChildren {
+  ProjectsProjectIdRoute: typeof ProjectsProjectIdRouteWithChildren
+  ProjectsNewRoute: typeof ProjectsNewRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
+}
+
+const ProjectsRouteChildren: ProjectsRouteChildren = {
+  ProjectsProjectIdRoute: ProjectsProjectIdRouteWithChildren,
+  ProjectsNewRoute: ProjectsNewRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
+}
+
+const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
+  ProjectsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuildRoute: BuildRouteWithChildren,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ProductsRoute: ProductsRouteWithChildren,
+  ProjectsRoute: ProjectsRouteWithChildren,
   SuppliersSupplierIdRoute: SuppliersSupplierIdRoute,
   SuppliersIndexRoute: SuppliersIndexRoute,
   VisualiserIndexRoute: VisualiserIndexRoute,
@@ -306,3 +469,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

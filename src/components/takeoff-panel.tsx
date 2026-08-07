@@ -1,4 +1,10 @@
-import { AlertTriangle, CheckCircle2, PackageCheck, ShoppingCart } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ClipboardCheck,
+  PackageCheck,
+  ShoppingCart,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,10 +29,21 @@ const confidenceClass: Record<MaterialRequirement["confidence"], string> = {
 
 export type TakeoffPanelProps = {
   element?: ModelElementSnapshot;
+  modelApproved?: boolean;
+  reviewed?: boolean;
+  onReview?: () => void;
+  onMaterialAdded?: () => void;
   className?: string;
 };
 
-export function TakeoffPanel({ element, className }: TakeoffPanelProps) {
+export function TakeoffPanel({
+  element,
+  modelApproved = false,
+  reviewed = false,
+  onReview,
+  onMaterialAdded,
+  className,
+}: TakeoffPanelProps) {
   const { add } = useCart();
   const takeoff = element ? calculateElementTakeoff(element) : undefined;
 
@@ -48,8 +65,19 @@ export function TakeoffPanel({ element, className }: TakeoffPanelProps) {
 
   const addRequirement = (requirement: MaterialRequirement) => {
     add(requirement.productId, requirement.orderQuantity);
+    onMaterialAdded?.();
     toast.success("Material added to cart", {
       description: `${quantity(requirement.orderQuantity)} × ${requirement.unit}`,
+    });
+  };
+
+  const addAllRequirements = () => {
+    for (const requirement of takeoff.requirements) {
+      add(requirement.productId, requirement.orderQuantity);
+    }
+    onMaterialAdded?.();
+    toast.success("Element materials added to cart", {
+      description: `${takeoff.requirements.length} material line${takeoff.requirements.length === 1 ? "" : "s"} added.`,
     });
   };
 
@@ -64,8 +92,8 @@ export function TakeoffPanel({ element, className }: TakeoffPanelProps) {
               {element.ifcClass} · {element.storey ?? "Unassigned storey"}
             </p>
           </div>
-          <Badge variant={takeoff.procurementReady ? "default" : "outline"}>
-            {takeoff.procurementReady ? "Procurement ready" : "Review required"}
+          <Badge variant={reviewed ? "default" : "outline"}>
+            {reviewed ? "Reviewed" : "Review required"}
           </Badge>
         </div>
         {takeoff.recipeId && (
@@ -76,6 +104,30 @@ export function TakeoffPanel({ element, className }: TakeoffPanelProps) {
         )}
       </CardHeader>
       <CardContent className="space-y-4 pt-5">
+        {!reviewed ? (
+          <div className="rounded-xl border border-primary/25 bg-primary/5 p-4">
+            <p className="flex items-center gap-2 text-sm font-semibold">
+              <ClipboardCheck className="size-4 text-primary" /> Review this element
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              Check the derived quantities, formula, assumptions, and supplier match below. Mark the
+              element reviewed to unlock material actions and advance the project workflow.
+            </p>
+            <Button className="mt-4 w-full" disabled={!modelApproved} onClick={onReview}>
+              <CheckCircle2 />
+              {modelApproved ? "Mark element reviewed" : "Approve the IFC model first"}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-800">
+            <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold">Element reviewed</p>
+              <p className="mt-0.5 text-[11px]">Material actions are now available.</p>
+            </div>
+          </div>
+        )}
+
         {takeoff.warnings.length > 0 && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900">
             <div className="flex gap-2">
@@ -153,7 +205,11 @@ export function TakeoffPanel({ element, className }: TakeoffPanelProps) {
                         {formatINR(offer.match.estimatedSubtotal)}
                       </p>
                     </div>
-                    <Button size="sm" onClick={() => addRequirement(requirement)}>
+                    <Button
+                      size="sm"
+                      disabled={!reviewed}
+                      onClick={() => addRequirement(requirement)}
+                    >
                       <ShoppingCart /> Add
                     </Button>
                   </div>
@@ -161,6 +217,12 @@ export function TakeoffPanel({ element, className }: TakeoffPanelProps) {
               </article>
             );
           })
+        )}
+
+        {takeoff.requirements.length > 0 && (
+          <Button className="w-full" disabled={!reviewed} onClick={addAllRequirements}>
+            <ShoppingCart /> Add all element materials
+          </Button>
         )}
 
         {takeoff.procurementReady && (

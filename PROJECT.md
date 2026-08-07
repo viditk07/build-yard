@@ -48,32 +48,33 @@ decisions are difficult to review and coordinate.
 
 ## Current implementation
 
-| Capability                     | Status              | Notes                                                                                                                                                                                                                     |
-| ------------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Project workspace              | Implemented locally | Project briefs and document metadata persist in `localStorage`; uploaded drawing blobs persist in IndexedDB.                                                                                                              |
-| Controlled drawing register    | Implemented locally | Eleven discipline sections support multiple files, revisions, review status, approval, and not-applicable reasons.                                                                                                        |
-| IFC model review               | MVP implemented     | `web-ifc` streams semantic geometry into Three.js with element selection, model summaries, and approval gates.                                                                                                            |
-| Element material takeoff       | MVP implemented     | Common architectural, structural, plumbing, and electrical IFC types map to explicit recipes, MOQ-rounded catalog products, suppliers, confidence, and assumptions. Geometry-bound quantities are conservative estimates. |
-| Construction SOP               | MVP implemented     | Dependency-based work packages expose drawing, model, takeoff, supplier, quality, and approval gates.                                                                                                                     |
-| Marketing home page            | Implemented         | Hero, build stages, categories, featured products, and suppliers.                                                                                                                                                         |
-| Product catalog                | Implemented         | Text search, category and supplier filters, and price sorting use URL search parameters.                                                                                                                                  |
-| Product details                | Implemented         | Specifications, supplier link, stock, MOQ-aware quantity selection, and related products.                                                                                                                                 |
-| Supplier directory             | Implemented         | Eleven static supplier profiles and their products. “Verified” is presentation data, not a live verification workflow.                                                                                                    |
-| Build-stage shopping           | Implemented         | Seven stages and 38 subcategories map the catalog to a residential construction sequence.                                                                                                                                 |
-| Cart                           | Implemented locally | Persists to `localStorage` under `buildyard.cart.v1`; there is no account or server-side cart.                                                                                                                            |
-| Pricing summary                | Implemented locally | INR prices, ₹2,500 delivery up to ₹100,000 subtotal, free delivery above ₹100,000, and 18% GST on subtotal plus delivery.                                                                                                 |
-| Checkout form                  | Demo only           | Zod validates contact and site fields. Submission generates a random `BY-xxxxxx` reference, clears the cart, and sends nothing.                                                                                           |
-| Floor-plan visualiser          | Implemented locally | PNG/JPG upload, automatic raster wall detection, manual tracing, scale controls, and an orbitable Three.js model.                                                                                                         |
-| SEO/error states               | Implemented         | Per-route metadata, route-specific not-found states, React error handling, and a fallback HTML 500 page.                                                                                                                  |
-| Accounts, orders, and payments | Not implemented     | No authentication, database, API, payment provider, or order history.                                                                                                                                                     |
-| Live stock and logistics       | Not implemented     | Stock, fulfilment, ratings, and dispatch language are static demo values.                                                                                                                                                 |
+| Capability                     | Status              | Notes                                                                                                                                                                                                           |
+| ------------------------------ | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project workspace              | Implemented locally | Project briefs and document metadata persist in `localStorage`; uploaded drawing blobs persist in IndexedDB.                                                                                                    |
+| Controlled drawing register    | Implemented locally | Eleven discipline sections support multiple files, revisions, review status, approval, and not-applicable reasons. Only IFC is starred because it drives the model workflow; all drawing sections are optional. |
+| IFC model review               | MVP implemented     | `web-ifc` streams semantic geometry into a BIM-style Three.js viewer with semantic selection, orbit/pan/zoom, standard views, element focus/isolation, first-person walk, model summaries, and approval gates.  |
+| Element material takeoff       | MVP implemented     | Common IFC types map to explicit recipes, MOQ-rounded products, suppliers, confidence, and assumptions. Users explicitly review each element before material actions; review state persists by IFC revision.    |
+| Construction SOP               | MVP implemented     | Dependency-based work packages expose one actionable next step with clear blocker guidance and persistent start/complete controls.                                                                              |
+| Marketing home page            | Implemented         | Hero, build stages, categories, featured products, and suppliers.                                                                                                                                               |
+| Product catalog                | Implemented         | Text search, category and supplier filters, and price sorting use URL search parameters.                                                                                                                        |
+| Product details                | Implemented         | Specifications, supplier link, stock, MOQ-aware quantity selection, and related products.                                                                                                                       |
+| Supplier directory             | Implemented         | Eleven static supplier profiles and their products. “Verified” is presentation data, not a live verification workflow.                                                                                          |
+| Build-stage shopping           | Implemented         | Seven stages and 38 subcategories map the catalog to a residential construction sequence.                                                                                                                       |
+| Cart                           | Implemented locally | Persists to `localStorage` under `buildyard.cart.v1`; there is no account or server-side cart.                                                                                                                  |
+| Pricing summary                | Implemented locally | INR prices, ₹2,500 delivery up to ₹100,000 subtotal, free delivery above ₹100,000, and 18% GST on subtotal plus delivery.                                                                                       |
+| Checkout form                  | Demo only           | Zod validates contact and site fields. Submission generates a random `BY-xxxxxx` reference, clears the cart, and sends nothing.                                                                                 |
+| Floor-plan visualiser          | Implemented locally | PNG/JPG upload, automatic raster wall detection, manual tracing, scale controls, and an orbitable Three.js model.                                                                                               |
+| SEO/error states               | Implemented         | Per-route metadata, route-specific not-found states, React error handling, and a fallback HTML 500 page.                                                                                                        |
+| Accounts, orders, and payments | Not implemented     | No authentication, database, API, payment provider, or order history.                                                                                                                                           |
+| Live stock and logistics       | Not implemented     | Stock, fulfilment, ratings, and dispatch language are static demo values.                                                                                                                                       |
 
 ## User journeys
 
 ### IFC-led design to procurement
 
 1. Create a project with site, building, floor, and area details.
-2. Upload each drawing under its discipline heading and record its revision and status.
+2. Upload the starred IFC model. Add architectural and other discipline drawings only
+   when they are relevant or available.
 3. Approve the IFC revision that should be used for model review.
 4. Open the 3D model and select a semantic building element.
 5. Inspect its IFC identity and conservative geometry-derived dimensions, area, volume,
@@ -171,11 +172,15 @@ Three.js semantic selection ---- geometry-derived quantity
 - `src/lib/project-store.ts` separates serializable project metadata from uploaded blobs.
   It uses versioned browser storage keys and an IndexedDB-backed file store.
 - `src/lib/ifc-loader.ts` initializes `web-ifc`, loads the bundled WASM module, streams
-  meshes, and exposes semantic properties for the selected express ID.
+  Y-up meshes without applying a second axis rotation, and exposes semantic properties
+  for the selected express ID.
 - `src/components/ifc-viewer.tsx` owns Three.js scene setup, navigation, framing,
-  ray-cast selection, highlighting, progress, errors, and resource disposal.
+  click-with-drag-threshold selection, highlighting, standard BIM views, visibility
+  tools, first-person walkthrough, progress, errors, and resource disposal.
 - `src/lib/takeoff-engine.ts` maps supported IFC types and measured geometry to explicit
   material recipes, then resolves purchasable catalog products and supplier data.
+- `src/lib/model-review-store.ts` persists reviewed elements, elements whose materials
+  entered the cart, and SOP package statuses per project and IFC document revision.
 - `src/lib/sop.ts` defines dependency-based construction work packages and their
   drawing, model, takeoff, procurement, quality, and approval gates.
 - Route loaders for dynamic product, supplier, and phase pages perform synchronous
@@ -188,7 +193,9 @@ Three.js semantic selection ---- geometry-derived quantity
 `src/lib/project-types.ts` defines projects, discipline sections, drawing revisions,
 review states, approvals, and model metadata. Eleven upload categories cover site,
 architectural, structural, plumbing, electrical, HVAC, fire safety, interiors, external
-works, specifications, and IFC building models.
+works, specifications, and IFC building models. IFC is the only starred category because
+it is the sole file required by the MVP model workspace. A project record can be created
+before any file is uploaded, and optional sections do not block model review.
 
 `src/lib/takeoff-types.ts` and `src/lib/takeoff-engine.ts` define the trace from a selected
 IFC element to material lines. Supported recipes cover common walls, slabs, beams,

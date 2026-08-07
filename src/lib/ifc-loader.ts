@@ -116,8 +116,8 @@ export async function loadIfcModel(
   let modelID: number | null = null;
   const group = new Group();
   group.name = "IFC model";
-  // IFC coordinates are Z-up; BuildYard's Three.js views are Y-up.
-  group.rotation.x = -Math.PI / 2;
+  // web-ifc converts IFC's Z-up coordinates to Three.js Y-up model space.
+  // Applying another axis rotation here turns otherwise upright buildings sideways.
 
   const geometries = new Map<number, BufferGeometry>();
   const materials = new Map<string, MeshStandardMaterial>();

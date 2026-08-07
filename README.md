@@ -14,13 +14,22 @@ requirements, compare suppliers, and follow a construction SOP.
 
 - Create house projects with site, building, area, floor, and construction details.
 - Upload drawings under 11 discipline-specific sections with metadata and revisions.
+- Create a project before uploading any drawings. Only the IFC model is starred because
+  it is required to open the MVP model-to-material workflow; every drawing discipline is
+  optional and can be added later.
 - Review and approve architectural, structural, plumbing, electrical, IFC, and other
   project documents.
 - Load IFC models in the browser and select semantic building elements in 3D.
+- Navigate IFC models with BIM-style Select, Orbit, Pan, and Walk modes, standard views,
+  zoom-to-cursor, double-click focus, isolate/hide, fit, and full-screen controls.
 - Convert selected walls, slabs, structural elements, openings, and MEP elements into
   formula-backed material requirements with confidence and assumptions.
+- Mark individual elements reviewed after checking their quantities and assumptions;
+  review state is retained per project and IFC revision.
 - Match material requirements to supplier products, stock, MOQ, and estimated cost.
 - Track construction work-package readiness through a dependency-based SOP.
+- Start and complete the currently actionable SOP package instead of navigating a list of
+  unexplained locked stages.
 - Search and filter 63 products across 11 construction-material categories.
 - Browse 11 supplier profiles with product, location, rating, and fulfilment details.
 - Shop through seven residential build stages, from foundation to interior fit-out.
@@ -75,14 +84,54 @@ Vite if port 8080 is unavailable.
 ### Try the design-to-procurement workflow
 
 1. Open **Projects** and create a house project.
-2. Upload drawings into the relevant discipline sections. Add an `.ifc` model under
-   **IFC building model**.
+2. Upload the starred `.ifc` model. Optional discipline drawings, including the floor
+   plan, can be added now or later.
 3. Review the register and approve the IFC revision that should drive takeoff.
 4. Open the model workspace, orbit the model, and select a building element.
 5. Review the element metadata, derived quantities, material recipe, assumptions,
-   supplier product, MOQ rounding, stock, and price.
+   supplier product, MOQ rounding, stock, and price, then choose **Mark element reviewed**.
 6. Add the required products to the cart and continue to the demo checkout.
-7. Use the SOP panel to see work-package dependencies and readiness gates.
+7. Use the SOP's highlighted next action to start and complete construction work packages.
+
+### IFC viewer controls
+
+| Action                    | Control                                                         |
+| ------------------------- | --------------------------------------------------------------- |
+| Select an element         | Select mode, then click the element                             |
+| Focus an element          | Double-click it, press `F`, or use the focus button             |
+| Orbit                     | Left-drag, or hold Shift while dragging the middle mouse button |
+| Pan                       | Middle/right-drag, or use Pan mode and left-drag                |
+| Zoom                      | Mouse wheel, zoom buttons, or Fit Model                         |
+| Standard view             | Choose Top, Front, Right, or 3D from the view control           |
+| Enter the building        | Choose Walk, then use the mouse and `WASD`/arrow keys           |
+| Walk vertically/faster    | Use `Q`/`E` and hold Shift for faster movement                  |
+| Release walk controls     | Press Escape                                                    |
+| Inspect model composition | Isolate or hide the selected element, then Show all             |
+
+The controls follow familiar Revit/Archicad conventions while keeping a visible mode
+toolbar for users without prior BIM software experience.
+
+`web-ifc` supplies Y-up geometry to the viewer. BuildYard keeps that orientation unchanged,
+uses Y as model height for derived quantities, and constrains orbiting so the building
+remains upright.
+
+### Included sample project
+
+Every supported demo section exposes a **Download sample** button in the drawing
+workspace. The same files are committed under
+[`public/samples/buildyard-demo`](./public/samples/buildyard-demo):
+
+| Sample                         | Upload section               | MVP requirement |
+| ------------------------------ | ---------------------------- | --------------- |
+| `sample-floor-plan.dxf`        | Architectural drawings       | Optional        |
+| `sample-house-elements.ifc`    | IFC building model           | Required `*`    |
+| `sample-structural-plan.dxf`   | Structural drawings          | Optional        |
+| `sample-plumbing-plan.dxf`     | Plumbing drawings            | Optional        |
+| `sample-electrical-plan.dxf`   | Electrical drawings          | Optional        |
+| `sample-material-schedule.csv` | Specifications and schedules | Optional        |
+
+The sample IFC contains a selectable wall, slab, and column. Its geometry and quantities
+are synthetic test data and must not be used for construction.
 
 ## Available commands
 

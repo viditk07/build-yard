@@ -17,7 +17,7 @@ export type IfcEstimatedQuantities = {
   lengthM: number;
   /** Smaller axis-aligned horizontal extent. */
   widthM: number;
-  /** Vertical, IFC Z-axis extent. */
+  /** Vertical Y-axis extent in web-ifc's Three.js-ready model space. */
   heightM: number;
   /** Conservative face/plan area selected according to the IFC element type. */
   grossAreaM2: number;

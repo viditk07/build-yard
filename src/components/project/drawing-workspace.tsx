@@ -81,6 +81,33 @@ const categoryStatusLabels: Record<CategoryProgressStatus, string> = {
   not_applicable: "Not applicable",
 };
 
+const sampleFiles: Partial<Record<string, { name: string; href: string }>> = {
+  architectural: {
+    name: "Sample floor plan (DXF)",
+    href: "/samples/buildyard-demo/sample-floor-plan.dxf",
+  },
+  structural: {
+    name: "Sample structural plan (DXF)",
+    href: "/samples/buildyard-demo/sample-structural-plan.dxf",
+  },
+  plumbing: {
+    name: "Sample plumbing plan (DXF)",
+    href: "/samples/buildyard-demo/sample-plumbing-plan.dxf",
+  },
+  electrical: {
+    name: "Sample electrical plan (DXF)",
+    href: "/samples/buildyard-demo/sample-electrical-plan.dxf",
+  },
+  specifications: {
+    name: "Sample material schedule (CSV)",
+    href: "/samples/buildyard-demo/sample-material-schedule.csv",
+  },
+  "ifc-model": {
+    name: "Sample house elements (IFC)",
+    href: "/samples/buildyard-demo/sample-house-elements.ifc",
+  },
+};
+
 const initialMetadata: DrawingUploadMetadata = {
   title: "",
   drawingNumber: "",
@@ -104,7 +131,9 @@ function statusClasses(status: CategoryProgressStatus): string {
 
 export function DrawingWorkspace({ project, documents, categoryStates }: DrawingWorkspaceProps) {
   const firstMissing = DRAWING_CATEGORIES.find(
-    (category) => getCategoryProgressStatus(category.id, documents, categoryStates) === "missing",
+    (category) =>
+      category.required &&
+      getCategoryProgressStatus(category.id, documents, categoryStates) === "missing",
   );
   const [selectedCategoryId, setSelectedCategoryId] = useState(
     firstMissing?.id ?? DRAWING_CATEGORIES[0]!.id,
@@ -117,15 +146,17 @@ export function DrawingWorkspace({ project, documents, categoryStates }: Drawing
   );
   const selectedState = categoryStates.find((state) => state.categoryId === selectedCategory.id);
 
-  const suppliedCount = useMemo(
+  const suppliedRequiredCount = useMemo(
     () =>
       DRAWING_CATEGORIES.filter(
         (category) =>
+          category.required &&
           getCategoryProgressStatus(category.id, documents, categoryStates) !== "missing",
       ).length,
     [categoryStates, documents],
   );
-  const completion = Math.round((suppliedCount / DRAWING_CATEGORIES.length) * 100);
+  const requiredCount = DRAWING_CATEGORIES.filter((category) => category.required).length;
+  const completion = Math.round((suppliedRequiredCount / requiredCount) * 100);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
@@ -133,12 +164,16 @@ export function DrawingWorkspace({ project, documents, categoryStates }: Drawing
         <div className="surface-card overflow-hidden rounded-2xl">
           <div className="border-b border-border p-5">
             <div className="flex items-center justify-between">
-              <p className="text-spec text-muted-foreground">Drawing checklist</p>
+              <p className="text-spec text-muted-foreground">Minimum project package</p>
               <span className="text-sm font-semibold text-primary">{completion}%</span>
             </div>
             <Progress value={completion} className="mt-3" />
             <p className="mt-2 text-xs text-muted-foreground">
-              {suppliedCount} of {DRAWING_CATEGORIES.length} sections resolved
+              {suppliedRequiredCount} of {requiredCount} required sections supplied
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              <span className="font-semibold text-destructive">*</span> Required. All unstarred
+              sections are optional and can be added later.
             </p>
           </div>
           <nav className="max-h-[65vh] overflow-y-auto p-2" aria-label="Drawing categories">
@@ -178,7 +213,9 @@ export function DrawingWorkspace({ project, documents, categoryStates }: Drawing
                       )}
                     </span>
                     <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {categoryStatusLabels[status]}
+                      {!category.required && status === "missing"
+                        ? "Optional"
+                        : categoryStatusLabels[status]}
                       {count > 0 ? ` · ${count} file${count === 1 ? "" : "s"}` : ""}
                     </span>
                   </span>
@@ -196,7 +233,9 @@ export function DrawingWorkspace({ project, documents, categoryStates }: Drawing
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-spec text-primary">{selectedCategory.discipline}</p>
-                {selectedCategory.required && <Badge variant="outline">Required</Badge>}
+                <Badge variant="outline">
+                  {selectedCategory.required ? "Required *" : "Optional"}
+                </Badge>
               </div>
               <h2 className="mt-2 text-2xl font-semibold">{selectedCategory.name}</h2>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
@@ -261,6 +300,7 @@ export function DrawingWorkspace({ project, documents, categoryStates }: Drawing
 
 function UploadDrawingPanel({ project, categoryId }: { project: Project; categoryId: string }) {
   const category = DRAWING_CATEGORIES.find((item) => item.id === categoryId)!;
+  const sampleFile = sampleFiles[categoryId];
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [metadata, setMetadata] = useState<DrawingUploadMetadata>(initialMetadata);
@@ -318,6 +358,21 @@ function UploadDrawingPanel({ project, categoryId }: { project: Project; categor
 
   return (
     <form onSubmit={submit} className="mt-6 border-t border-border pt-6">
+      {sampleFile && (
+        <div className="mb-5 flex flex-col justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-sm font-semibold">Need a file to test this section?</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Download the included demo file, then upload it below.
+            </p>
+          </div>
+          <Button asChild type="button" variant="outline" size="sm">
+            <a href={sampleFile.href} download>
+              <Download className="size-4" /> {sampleFile.name}
+            </a>
+          </Button>
+        </div>
+      )}
       <button
         type="button"
         onClick={() => inputRef.current?.click()}

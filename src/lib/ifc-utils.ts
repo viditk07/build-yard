@@ -87,9 +87,10 @@ export function estimateIfcQuantitiesFromBounds(
   const x = normalizedExtent(size.x);
   const y = normalizedExtent(size.y);
   const z = normalizedExtent(size.z);
-  const horizontalDiagonal = Math.hypot(x, y);
-  const planArea = x * y;
-  const verticalEnvelopeArea = horizontalDiagonal * z;
+  // web-ifc emits Three.js-ready Y-up geometry, so X/Z form the plan and Y is height.
+  const horizontalDiagonal = Math.hypot(x, z);
+  const planArea = x * z;
+  const verticalEnvelopeArea = horizontalDiagonal * y;
   const normalizedType = typeName.toUpperCase();
 
   let grossArea = Math.max(planArea, x * z, y * z);
@@ -105,8 +106,8 @@ export function estimateIfcQuantitiesFromBounds(
   return {
     source: "derived-geometry-bounds",
     lengthM: roundedQuantity(horizontalDiagonal),
-    widthM: roundedQuantity(Math.min(x, y)),
-    heightM: roundedQuantity(z),
+    widthM: roundedQuantity(Math.min(x, z)),
+    heightM: roundedQuantity(y),
     grossAreaM2: roundedQuantity(grossArea),
     netAreaM2: roundedQuantity(grossArea),
     volumeM3: roundedQuantity(x * y * z),

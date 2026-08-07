@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { readModelReviewWorkflow } from "@/lib/model-review-store";
 import { DRAWING_CATEGORIES } from "@/lib/project-types";
 import { getCategoryProgressStatus } from "@/lib/project-store";
 import type { CategoryState, Project, ProjectDocument } from "@/lib/project-types";
@@ -34,6 +35,9 @@ export function ProjectReadiness({ project, documents, categoryStates }: Project
   const progress = Math.round((completeRequired / requiredCategories.length) * 100);
   const ifcDocuments = documents.filter((document) => document.categoryId === "ifc-model");
   const latestIfc = ifcDocuments[0];
+  const modelWorkflow = latestIfc ? readModelReviewWorkflow(project.id, latestIfc.id) : undefined;
+  const reviewedElementCount = modelWorkflow?.reviewedElementIds.length ?? 0;
+  const materialsAdded = (modelWorkflow?.materialElementIds.length ?? 0) > 0;
 
   const workflow = [
     {
@@ -52,14 +56,19 @@ export function ProjectReadiness({ project, documents, categoryStates }: Project
     },
     {
       label: "Quantity takeoff",
-      description: "Available after the IFC model is approved",
-      complete: false,
+      description:
+        reviewedElementCount > 0
+          ? `${reviewedElementCount} model element${reviewedElementCount === 1 ? "" : "s"} reviewed`
+          : "Select and review an element in the model",
+      complete: reviewedElementCount > 0,
       icon: FileCheck2,
     },
     {
       label: "Supplier quote",
-      description: "Compare compatible, serviceable offers",
-      complete: false,
+      description: materialsAdded
+        ? "Reviewed materials added to the cart"
+        : "Add a reviewed material to continue",
+      complete: materialsAdded,
       icon: ShoppingCart,
     },
   ];
@@ -71,9 +80,10 @@ export function ProjectReadiness({ project, documents, categoryStates }: Project
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
             <div>
               <p className="text-spec text-primary">Submission readiness</p>
-              <h2 className="mt-2 text-xl font-semibold">Complete the design package</h2>
+              <h2 className="mt-2 text-xl font-semibold">Complete the minimum package</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Required sections must be supplied before the model can enter coordinated review.
+                Only starred sections are required. Optional disciplines can be uploaded later and
+                do not block IFC model review.
               </p>
             </div>
             <span className="font-display text-3xl font-semibold text-primary">{progress}%</span>
@@ -86,11 +96,20 @@ export function ProjectReadiness({ project, documents, categoryStates }: Project
               {latestIfc ? "IFC supplied" : "IFC required"}
             </Badge>
           </div>
-          <Button asChild className="mt-6">
-            <Link to="/projects/$projectId/drawings" params={{ projectId: project.id }}>
-              Open drawing workspace <ArrowRight className="size-4" />
-            </Link>
-          </Button>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {latestIfc && (
+              <Button asChild>
+                <Link to="/projects/$projectId/model" params={{ projectId: project.id }}>
+                  Continue model review <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant={latestIfc ? "outline" : "default"}>
+              <Link to="/projects/$projectId/drawings" params={{ projectId: project.id }}>
+                {latestIfc ? "Manage drawings" : "Upload IFC model"}
+              </Link>
+            </Button>
+          </div>
         </section>
 
         <section className="surface-card rounded-2xl p-5 sm:p-6">

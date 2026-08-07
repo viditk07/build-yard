@@ -1,0 +1,6 @@
+item_code,description,discipline,unit,design_quantity,waste_percent,notes
+MAT-001,Portland cement 43 grade,Structural,bag,120,5,Demo quantity only
+MAT-002,TMT reinforcement Fe500D 12 mm,Structural,kg,850,3,Confirm bar bending schedule
+MAT-003,AAC block 600x200x200 mm,Architectural,number,620,7,Confirm wall openings
+MAT-004,CPVC cold water pipe 20 mm,Plumbing,m,45,10,Confirm route lengths
+MAT-005,Heavy duty PVC conduit 20 mm,Electrical,m,90,10,Confirm circuit routing
